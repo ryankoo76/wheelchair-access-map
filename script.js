@@ -1,43 +1,46 @@
-function initMap() {
-    // 지도 초기화 (기본 위치 설정)
-    const map = new google.maps.Map(document.getElementById("map"), {
-        zoom: 14,
-        center: { lat: 42.3601, lng: -71.0589 }, // Boston 기본 위치
-    });
+async function fetchLocations() {
+    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2Z2qzOUo5U5RZ5-cV79UeGsO6SzYY7GbJenPWVLKhx8-8S-yWZ0z6UFDd07_bHZ5mT3pFA6FP-r8b/pub?gid=0&single=true&output=csv";
 
-    // CSV 데이터 불러오기
-    fetch('locations.csv')
-        .then(response => response.text())
-        .then(data => {
-            const locations = parseCSV(data);
-            locations.forEach(location => {
-                const marker = new google.maps.Marker({
-                    position: { lat: parseFloat(location.latitude), lng: parseFloat(location.longitude) },
-                    map: map,
-                    title: location.name,
-                    icon: location.accessible === "True"
-                        ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-                        : "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
-                });
+    const response = await fetch(sheetURL);
+    const csvText = await response.text();
+    const rows = csvText.split("\n").map(row => row.split(","));
 
-                const infoWindow = new google.maps.InfoWindow({
-                    content: `<strong>${location.name}</strong><br>${location.accessible === "True" ? "✅ Accessible" : "❌ Not Accessible"}`
-                });
+    // 헤더 제거 후 데이터 가공
+    const locations = rows.slice(1).map(row => ({
+        name: row[0],
+        lat: parseFloat(row[1]),
+        lng: parseFloat(row[2]),
+        accessible: row[3].trim().toLowerCase() === "true"
+    }));
 
-                marker.addListener("click", () => {
-                    infoWindow.open(map, marker);
-                });
-            });
-        })
-        .catch(error => console.error("Error loading CSV file:", error));
+    return locations;
 }
 
-// CSV 파싱 함수
-function parseCSV(data) {
-    const rows = data.split("\n").slice(1); // 첫 번째 줄(헤더) 제외
-    return rows.map(row => {
-        const [name, latitude, longitude, accessible] = row.split(",");
-        return { name, latitude, longitude, accessible };
+async function initMap() {
+    const locations = await fetchLocations();
+
+    const map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 14,
+        center: { lat: locations[0].lat, lng: locations[0].lng }
+    });
+
+    locations.forEach(location => {
+        const marker = new google.maps.Marker({
+            position: { lat: location.lat, lng: location.lng },
+            map: map,
+            title: location.name,
+            icon: location.accessible
+                ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                : "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+        });
+
+        const infoWindow = new google.maps.InfoWindow({
+            content: `<strong>${location.name}</strong><br>🚶‍♂️ ${location.accessible ? "Wheelchair Accessible ✅" : "Wheelchair Inaccessible ❌"}`
+        });
+
+        marker.addListener("click", () => {
+            infoWindow.open(map, marker);
+        });
     });
 }
 
