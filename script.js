@@ -12,7 +12,8 @@ async function fetchLocations() {
           lat: parseFloat(row[1]),
           lng: parseFloat(row[2]),
           accessible: row[3].trim().toLowerCase() === "true",  
-          imageUrl: row[5]?.trim()
+          imageUrl: row[5] ? row[5].trim() : ""
+
         }));
         .filter(loc => !isNaN(loc.lat) && !isNaN(loc.lng)); 
     
