@@ -7,52 +7,50 @@ async function fetchLocations() {
 
     // 헤더 제거 후 데이터 가공
     const locations = rows.slice(1).map(row => ({
-        name: row[1]?.trim(),
-        lat: parseFloat(row[2]),  // lat이 NaN인지 확인
-        lng: parseFloat(row[3]),  // lng이 NaN인지 확인
-        accessible: row[4]?.trim().toLowerCase() === "true"
+        name: row[0],
+        lat: parseFloat(row[1]),
+        lng: parseFloat(row[2]),
+        accessible: row[3].trim().toLowerCase() === "true"
+        imageUrl: row[5]?.trim()
     }));
 
-    console.log("Parsed Locations:", locations); // 디버깅용 콘솔 로그
     return locations;
 }
 
 async function initMap() {
     const locations = await fetchLocations();
 
-    if (locations.length === 0 || isNaN(locations[0].lat) || isNaN(locations[0].lng)) {
-        console.error("Error: No valid locations found. Please check Google Sheets data.");
-        return;
-    }
-
     const map = new google.maps.Map(document.getElementById("map"), {
         zoom: 14,
-        center: { lat: locations[0].lat, lng: locations[0].lng }  // NaN인지 확인
+        center: { lat: locations[0].lat, lng: locations[0].lng }
     });
 
     locations.forEach(location => {
-        if (!isNaN(location.lat) && !isNaN(location.lng)) {
-            const marker = new google.maps.Marker({
-                position: { lat: location.lat, lng: location.lng },
-                map: map,
-                title: location.name,
-                icon: location.accessible
-                    ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-                    : "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
-            });
+        const marker = new google.maps.Marker({
+            position: { lat: location.lat, lng: location.lng },
+            map: map,
+            title: location.name,
+            icon: location.accessible
+                ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                : "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+        });
 
-            const infoWindow = new google.maps.InfoWindow({
-                content: `<strong>${location.name}</strong><br>🚶‍♂️ ${location.accessible ? "Wheelchair Accessible ✅" : "Wheelchair Inaccessible ❌"}`
-            });
+        const infoWindow = new google.maps.InfoWindow({
+            content: `
+                <div style="max-width: 250px;">
+                    <strong>${location.name}</strong><br>
+                    🚶‍♂️ ${location.accessible ? "Wheelchair Accessible ✅" : "Wheelchair Inaccessible ❌"}<br>
+                    ${location.imageUrl ? `<img src="${location.imageUrl}" alt="${location.name}" style="margin-top:5px; width:100%; border-radius:8px;">` : ""}
+                </div>
+            `
+        });
 
-            marker.addListener("click", () => {
-                infoWindow.open(map, marker);
-            });
-        } else {
-            console.warn(`Invalid location skipped: ${location.name}`);
-        }
+        marker.addListener("click", () => {
+            infoWindow.open(map, marker);
+        });
     });
 }
 
 window.onload = initMap;
+
 
