@@ -10,18 +10,18 @@
       width: 100%;
     }
   </style>
+  <!-- Google Maps API 로딩 (initMap을 콜백으로 실행) -->
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZ8yC1l3IN4Dvk2bLUPT6MudcOmBgAbdo&callback=initMap"
+    async
+    defer
+  ></script>
 </head>
 <body>
   <h2>🚀 Wheelchair Accessibility Map</h2>
   <div id="map"></div>
 
-  <!--  먼저 사용자 스크립트 -->
+  <!-- 사용자 정의 스크립트 -->
   <script src="script.js"></script>
-
-  <!-- 나중에 Google Maps API (initMap 콜백 실행됨) -->
-  <script
-    async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZ8yC1l3IN4Dvk2bLUPT6MudcOmBgAbdo&callback=initMap">
-  </script>
 </body>
 </html>
