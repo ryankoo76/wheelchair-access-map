@@ -23,6 +23,8 @@ async function fetchLocations() {
 async function initMap() {
     const locations = await fetchLocations();
 
+    console.log(locations);
+    
     const map = new google.maps.Map(document.getElementById("map"), {
         zoom: 14,
         center: { lat: locations[0].lat, lng: locations[0].lng }
