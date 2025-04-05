@@ -10,7 +10,7 @@ async function fetchLocations() {
         name: row[0],
         lat: parseFloat(row[1]),
         lng: parseFloat(row[2]),
-        accessible: row[3].trim().toLowerCase() === "true"
+        accessible: row[3].trim().toLowerCase() === "true",
         imageUrl: row[5]?.trim()
     }));
 
