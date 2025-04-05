@@ -1,8 +1,8 @@
-const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR2Z2qzOUo5U5RZ5-cV79UeGsO6SzYY7GbJenPWVLKhx8-8S-yWZ0z6UFDd07_bHZ5mT3pFA6FP-r8b/pub?output=csv';
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR2Z2qzOUo5U5RZ5-cV79UeGsO6SzYY7GbJenPWVLKhx8-8S-yWZ0z6UFDd07_bHZ5mT3pFA6FP-r8b/pub?gid=0&single=true&output=csv';
 
-function convertDriveLink(url) {
+function convertImageLink(url) {
   const match = url.match(/\/d\/(.*?)\//);
-  return match ? `https://drive.google.com/uc?export=view&id=${match[1]}` : '';
+  return match ? `https://drive.google.com/uc?export=view&id=${match[1]}` : url;
 }
 
 function parseCSV(text) {
@@ -28,7 +28,7 @@ function initMap() {
         zoom: 14,
         center: { lat: 42.35, lng: -71.08 },
       });
-      
+
       locations.forEach(loc => {
         const lat = parseFloat(loc.latitude);
         const lng = parseFloat(loc.longitude);
@@ -45,7 +45,7 @@ function initMap() {
           icon,
         });
 
-        const imageUrl = convertDriveLink(loc.Image_url || '');
+        const imageUrl = convertImageLink(loc.Image_url || '');
 
         const infoContent = `
           <div>
