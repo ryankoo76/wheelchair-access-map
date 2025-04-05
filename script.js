@@ -29,16 +29,6 @@ function initMap() {
         center: { lat: 42.35, lng: -71.08 },
       });
 
-      const infoContent = `
-        <div>
-          <h3>Test Image</h3>
-          <img src="https://drive.google.com/uc?export=view&id=1fzHeJbWOQ2UpSE6f9IYnYPhrDdEQqU4G" width="300"/>
-        </div>
-      `;
-
-      const infowindow = new google.maps.InfoWindow({ content: infoContent });
-      infowindow.open(map);
-
       locations.forEach(loc => {
         const lat = parseFloat(loc.latitude);
         const lng = parseFloat(loc.longitude);
