@@ -2,25 +2,45 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Wheelchair Accessibility Map</title>
   <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 20px;
+      text-align: center;
+    }
+
     #map {
-      height: 600px;
+      height: 90vh;
       width: 100%;
     }
+
+    .gm-style-iw img {
+      max-width: 100%;
+      height: auto;
+      margin-top: 8px;
+      border-radius: 8px;
+    }
   </style>
-  <!-- Google Maps API 로딩 (initMap을 콜백으로 실행) -->
-  <script
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZ8yC1l3IN4Dvk2bLUPT6MudcOmBgAbdo&callback=initMap"
-    async defer
-  ></script>
 </head>
 <body>
-  <h2>🚀 Wheelchair Accessibility Map</h2>
+  <h1>🚀 Wheelchair Accessibility Map</h1>
   <div id="map"></div>
 
-  <!-- 사용자 정의 스크립트 -->
   <script src="script.js"></script>
+
+  <!-- ✅ Google Maps API (initMap이 콜백으로 지정됨) -->
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZ8yC1l3IN4Dvk2bLUPT6MudcOmBgAbdo&callback=initMap"
+    async
+    defer
+  ></script>
 </body>
 </html>
