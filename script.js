@@ -6,13 +6,16 @@ async function fetchLocations() {
     const rows = csvText.split("\n").map(row => row.split(","));
 
     // 헤더 제거 후 데이터 가공
-    const locations = rows.slice(1).map(row => ({
-      name: row[0],
-      lat: parseFloat(row[1]),
-      lng: parseFloat(row[2]),
-      accessible: row[3].trim().toLowerCase() === "true",  
-      imageUrl: row[5]?.trim()
-    }));
+    const locations = rows.slice(1)
+        .map(row => ({
+          name: row[0],
+          lat: parseFloat(row[1]),
+          lng: parseFloat(row[2]),
+          accessible: row[3].trim().toLowerCase() === "true",  
+          imageUrl: row[5]?.trim()
+        }));
+        .filter(loc => !isNaN(loc.lat) && !isNaN(loc.lng)); 
+    
     return locations;
 }
 
