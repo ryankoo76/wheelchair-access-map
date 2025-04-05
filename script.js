@@ -1,70 +1,73 @@
-async function fetchLocations() {
-  const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2Z2qzOUo5U5RZ5-cV79UeGsO6SzYY7GbJenPWVLKhx8-8S-yWZ0z6UFDd07_bHZ5mT3pFA6FP-r8b/pub?output=csv";
-
-  const response = await fetch(sheetURL);
-  const csvText = await response.text();
-  const rows = csvText.split("\n").map(row => row.split(","));
-
-  console.log("RAW rows:", rows);
-
-  const locations = rows.slice(1) // 헤더 제외
-    .map(row => ({
-      name: row[0],
-      lat: parseFloat(row[1]),
-      lng: parseFloat(row[2]),
-      accessible: row[3]?.trim().toLowerCase() === "true",
-      imageUrl: row[4] ? row[4].trim() : ""
-    }))
-    .filter(loc => !isNaN(loc.lat) && !isNaN(loc.lng));
-
-  console.log("Parsed locations:", locations);
-  return locations;
-}
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR2Z2qzOUo5U5RZ5-cV79UeGsO6SzYY7GbJenPWVLKhx8-8S-yWZ0z6UFDd07_bHZ5mT3pFA6FP-r8b/pub?output=csv';
 
 function convertDriveLink(url) {
-  const match = url.match(/\/d\/(.+?)\//);
-  return match ? `https://drive.google.com/uc?export=view&id=${match[1]}` : url;
+  const match = url.match(/\/d\/(.*?)\//);
+  return match ? `https://drive.google.com/uc?export=view&id=${match[1]}` : '';
 }
 
-async function initMap() {
-  const locations = await fetchLocations();
-  if (!locations.length) {
-    alert("No location data found. Please check the sheet link.");
-    return;
-  }
-
-  const map = new google.maps.Map(document.getElementById("map"), {
-    zoom: 14,
-    center: { lat: locations[0].lat, lng: locations[0].lng }
+function parseCSV(text) {
+  const rows = text.trim().split('\n').map(r => r.split(','));
+  const headers = rows[0].map(h => h.trim());
+  return rows.slice(1).map(row => {
+    const obj = {};
+    row.forEach((val, i) => {
+      obj[headers[i]] = val.trim();
+    });
+    return obj;
   });
+}
 
-  locations.forEach(location => {
-    const marker = new google.maps.Marker({
-      position: { lat: location.lat, lng: location.lng },
-      map,
-      icon: location.accessible
-        ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-        : "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+function initMap() {
+  fetch(SHEET_URL)
+    .then(response => response.text())
+    .then(csvText => {
+      const locations = parseCSV(csvText);
+      console.log("Parsed locations:", locations);
+
+      const map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 14,
+        center: { lat: 42.35, lng: -71.08 },
+      });
+
+      locations.forEach(loc => {
+        const lat = parseFloat(loc.latitude);
+        const lng = parseFloat(loc.longitude);
+        if (isNaN(lat) || isNaN(lng)) return;
+
+        const isAccessible = loc.accessible.toLowerCase() === 'true';
+        const icon = isAccessible
+          ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+          : "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
+
+        const marker = new google.maps.Marker({
+          position: { lat, lng },
+          map,
+          icon,
+        });
+
+        const imageUrl = convertDriveLink(loc.Image_url || '');
+
+        const infoContent = `
+          <div>
+            <h3>${loc.name}</h3>
+            <p>
+              ♿ Wheelchair ${isAccessible ? 'Accessible ✅' : 'Inaccessible ❌'}
+            </p>
+            ${imageUrl ? `<img src="${imageUrl}" width="200"/>` : ''}
+          </div>
+        `;
+
+        const infowindow = new google.maps.InfoWindow({
+          content: infoContent,
+        });
+
+        marker.addListener("click", () => {
+          infowindow.open(map, marker);
+        });
+      });
+    })
+    .catch(error => {
+      alert("Failed to load data.");
+      console.error(error);
     });
-
-    const imageHTML = location.imageUrl
-      ? `<img src="${convertDriveLink(location.imageUrl)}" alt="${location.name}" width="200"/>`
-      : "";
-
-    const content = `
-      <div>
-        <h3><strong>${location.name}</strong></h3>
-        <p>🦽 Wheelchair ${location.accessible ? "Accessible ✅" : "Inaccessible ❌"}</p>
-        ${imageHTML}
-      </div>
-    `;
-
-    const infoWindow = new google.maps.InfoWindow({
-      content
-    });
-
-    marker.addListener("click", () => {
-      infoWindow.open(map, marker);
-    });
-  });
 }
