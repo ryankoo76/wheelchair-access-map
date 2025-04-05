@@ -1,35 +1,32 @@
 async function fetchLocations() {
-  const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2Z2qzOUo5U5RZ5-cV79UeGsO6SzYY7GbJenPWVLKhx8-8S-yWZ0z6UFDd07_bHZ5mT3pFA6FP-r8b/pub?gid=0&single=true&output=csv"; // <-- 실제 CSV 주소 입력
+  const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2Z2qzOUo5U5RZ5-cV79UeGsO6SzYY7GbJenPWVLKhx8-8S-yWZ0z6UFDd07_bHZ5mT3pFA6FP-r8b/pub?output=csv";
 
   const response = await fetch(sheetURL);
   const csvText = await response.text();
-  const rows = csvText
-    .trim()
-    .split("\n")
-    .map(line => line.split(",").map(cell => cell.trim()));
-  
-  console.log("Raw CSV rows:", rows); // ✅ 확인
 
-  const locations = rows
-    .slice(1) // skip header
+  // 줄별로 split → 각 줄을 쉼표로 split
+  const rows = csvText.split("\n").map(row => row.split(","));
+  console.log("RAW rows:", rows);
+
+  const locations = rows.slice(1)  // 첫 줄은 헤더
     .map(row => ({
       name: row[0],
       lat: parseFloat(row[1]),
       lng: parseFloat(row[2]),
-      accessible: row[3]?.toLowerCase() === "true",
-      imageUrl: row[5] || ""
+      accessible: row[3]?.trim().toLowerCase() === "true",
+      imageUrl: row[4] ? row[4].trim() : ""
     }))
     .filter(loc => !isNaN(loc.lat) && !isNaN(loc.lng));
 
-  console.log("Parsed locations:", locations); // ✅ 확인
-
+  console.log("Parsed locations:", locations);
   return locations;
 }
 
 async function initMap() {
   const locations = await fetchLocations();
+
   if (locations.length === 0) {
-    alert("No location data found. Please check the sheet link.");
+    alert("No location data found. Please check the sheet link or format.");
     return;
   }
 
@@ -41,7 +38,7 @@ async function initMap() {
   locations.forEach(location => {
     const marker = new google.maps.Marker({
       position: { lat: location.lat, lng: location.lng },
-      map: map,
+      map,
       title: location.name,
       icon: location.accessible
         ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
@@ -50,10 +47,10 @@ async function initMap() {
 
     const infoWindow = new google.maps.InfoWindow({
       content: `
-        <div style="max-width: 250px;">
+        <div style="max-width:250px;">
           <strong>${location.name}</strong><br>
           ♿ ${location.accessible ? "Wheelchair Accessible ✅" : "Wheelchair Inaccessible ❌"}<br>
-          ${location.imageUrl ? `<img src="${location.imageUrl}" alt="${location.name}" style="margin-top:5px; width:100%; border-radius:8px;" />` : ""}
+          ${location.imageUrl ? `<img src="${location.imageUrl}" style="margin-top:5px; width:100%; border-radius:8px;" alt="${location.name}">` : ""}
         </div>
       `
     });
@@ -64,4 +61,5 @@ async function initMap() {
   });
 }
 
+// 전역에서 접근 가능하게 설정
 window.initMap = initMap;
