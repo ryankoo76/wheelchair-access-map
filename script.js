@@ -1,5 +1,5 @@
 async function fetchLocations() {
-  const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSW_z1tBHsS7Yikzu6SBci1tTM3mOX--RbRmEjoM4C0xhJJuBB1ItgqkE-2Nby3CltkG85e0nvLlDnP/pub?gid=0&single=true&output=csv"; // <-- 실제 CSV 주소 입력
+  const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2Z2qzOUo5U5RZ5-cV79UeGsO6SzYY7GbJenPWVLKhx8-8S-yWZ0z6UFDd07_bHZ5mT3pFA6FP-r8b/pub?gid=0&single=true&output=csv"; // <-- 실제 CSV 주소 입력
 
   const response = await fetch(sheetURL);
   const csvText = await response.text();
