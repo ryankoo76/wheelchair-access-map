@@ -29,6 +29,17 @@ function initMap() {
         center: { lat: 42.35, lng: -71.08 },
       });
 
+      const infoContent = `
+        <div>
+          <h3>Test Location</h3>
+          <p>♿ Wheelchair Accessible ✅</p>
+          <img src="https://drive.google.com/uc?export=view&id=1fzHeJbWOQ2UpSE6f9IYnYPhrDdEQqU4G" width="200"/>
+        </div>
+      `;
+      const infowindow = new google.maps.InfoWindow({ content: infoContent });
+      infowindow.open(map); // 지도 초기화 시 바로 보여주기
+
+
       locations.forEach(loc => {
         const lat = parseFloat(loc.latitude);
         const lng = parseFloat(loc.longitude);
