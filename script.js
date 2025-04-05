@@ -3,19 +3,25 @@ async function fetchLocations() {
 
   const response = await fetch(sheetURL);
   const csvText = await response.text();
-  const rows = csvText.split("\n").map(row => row.split(","));
+  const rows = csvText
+    .trim()
+    .split("\n")
+    .map(line => line.split(",").map(cell => cell.trim()));
+  
+  console.log("Raw CSV rows:", rows); // ✅ 확인
 
-  const locations = rows.slice(1)  // 첫 줄은 헤더이므로 제외
+  const locations = rows
+    .slice(1) // skip header
     .map(row => ({
       name: row[0],
       lat: parseFloat(row[1]),
       lng: parseFloat(row[2]),
-      accessible: row[3]?.trim().toLowerCase() === "true",
-      imageUrl: row[5]?.trim() || ""
+      accessible: row[3]?.toLowerCase() === "true",
+      imageUrl: row[5] || ""
     }))
     .filter(loc => !isNaN(loc.lat) && !isNaN(loc.lng));
 
-  console.log(locations);  // 확인용
+  console.log("Parsed locations:", locations); // ✅ 확인
 
   return locations;
 }
