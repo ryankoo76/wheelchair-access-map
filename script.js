@@ -7,13 +7,12 @@ async function fetchLocations() {
 
     // 헤더 제거 후 데이터 가공
     const locations = rows.slice(1).map(row => ({
-        name: row[0],
-        lat: parseFloat(row[1]),
-        lng: parseFloat(row[2]),
-        accessible: row[3].trim().toLowerCase() === "true",
-        imageUrl: row[5]?.trim()
+      name: row[0],
+      lat: parseFloat(row[1]),
+      lng: parseFloat(row[2]),
+      accessible: row[3].trim().toLowerCase() === "true",  
+      imageUrl: row[5]?.trim()
     }));
-
     return locations;
 }
 
