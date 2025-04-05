@@ -1,7 +1,7 @@
 // Google Sheet에서 데이터를 가져오는 함수
 async function fetchLocations() {
   const sheetURL =
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2Z2qzOUo5U5RZ5-cV79UeGsO6SzYY7GbJenPWVLKhx8-8S-yWZ0z6UFDd07_bHZ5mT3pFA6FP-r8b/pubhtml?gid=0&single=true";
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2Z2qzOUo5U5RZ5-cV79UeGsO6SzYY7GbJenPWVLKhx8-8S-yWZ0z6UFDd07_bHZ5mT3pFA6FP-r8b/pub?output=csv";
 
   const response = await fetch(sheetURL);
   const csvText = await response.text();
@@ -26,6 +26,12 @@ async function fetchLocations() {
 // 지도 초기화 함수
 async function initMap() {
   const locations = await fetchLocations();
+
+  if (locations.length === 0) {
+  alert("No location data found. Please check the sheet link.");
+  return;
+  }
+
 
   const map = new google.maps.Map(document.getElementById("map"), {
     zoom: 14,
