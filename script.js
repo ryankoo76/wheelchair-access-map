@@ -51,6 +51,6 @@ async function initMap() {
     });
 }
 
-window.onload = initMap;
+window.initMap = initMap;
 
 
