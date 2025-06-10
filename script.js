@@ -1,4 +1,6 @@
-const SHEET_URL = 'https://v';
+// Source CSV containing location data. Using a relative path allows
+// the application to work locally without relying on an external URL.
+const SHEET_URL = 'locations.csv';
 
 function convertImageLink(url) {
   const match = url.match(/\/d\/(.*?)\//);
